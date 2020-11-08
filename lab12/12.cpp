@@ -1,4 +1,4 @@
-// lab1011.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
+// lab1011.cpp : Р­С‚РѕС‚ С„Р°Р№Р» СЃРѕРґРµСЂР¶РёС‚ С„СѓРЅРєС†РёСЋ "main". Р—РґРµСЃСЊ РЅР°С‡РёРЅР°РµС‚СЃСЏ Рё Р·Р°РєР°РЅС‡РёРІР°РµС‚СЃСЏ РІС‹РїРѕР»РЅРµРЅРёРµ РїСЂРѕРіСЂР°РјРјС‹.
 //
 #include <iostream>
 #include <math.h>
@@ -17,7 +17,7 @@ int get_chunk(int total, int commsize, int rank)
 	if (n % commsize)
 		q++;
 	int r = commsize * q - n;
-	/* Вычисляем кол-во строк на поток */
+	/* Р’С‹С‡РёСЃР»СЏРµРј РєРѕР»-РІРѕ СЃС‚СЂРѕРє РЅР° РїРѕС‚РѕРє */
 	int chunk = q;
 	if (rank >= commsize - r)
 		chunk = q - 1;
@@ -32,18 +32,18 @@ void gauss() {
 
 	double t = MPI_Wtime();
 
-	//получаем кол-во строк на поток
+	//РїРѕР»СѓС‡Р°РµРј РєРѕР»-РІРѕ СЃС‚СЂРѕРє РЅР° РїРѕС‚РѕРє
 	int nrows = get_chunk(n, proc_num, proc_rank);
 	std::cout << nrows << std::endl;
 
 	int* rows = (int*)malloc(sizeof(*rows) * nrows);
-	// Номера локальных строк
-	// Матрица дополнена столбцом для вектора b
+	// РќРѕРјРµСЂР° Р»РѕРєР°Р»СЊРЅС‹С… СЃС‚СЂРѕРє
+	// РњР°С‚СЂРёС†Р° РґРѕРїРѕР»РЅРµРЅР° СЃС‚РѕР»Р±С†РѕРј РґР»СЏ РІРµРєС‚РѕСЂР° b
 	double* a = (double*)malloc(sizeof(*a) * nrows * (n + 1));
 	double* x = (double*)malloc(sizeof(*x) * n);
 	double* tmp = (double*)malloc(sizeof(*tmp) * (n + 1));
 
-	// Инициализация
+	// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ
 	for (int i = 0; i < nrows; i++)
 	{
 		rows[i] = proc_rank + proc_num * i;
@@ -54,14 +54,14 @@ void gauss() {
 		a[i * (n + 1) + n] = rand() % 100 + 1;
 	}
 
-	// Прямой ход
+	// РџСЂСЏРјРѕР№ С…РѕРґ
 	int row = 0;
 	for (int i = 0; i < n - 1; i++)
 	{
-		// Исключаем x[i]
+		// РСЃРєР»СЋС‡Р°РµРј x[i]
 		if (i == rows[row])
 		{
-			// Рассылаем строку i, находящуюся в памяти текущего процесса
+			// Р Р°СЃСЃС‹Р»Р°РµРј СЃС‚СЂРѕРєСѓ i, РЅР°С…РѕРґСЏС‰СѓСЋСЃСЏ РІ РїР°РјСЏС‚Рё С‚РµРєСѓС‰РµРіРѕ РїСЂРѕС†РµСЃСЃР°
 			MPI_Bcast(&a[row * (n + 1)], n + 1, MPI_DOUBLE, proc_rank, MPI_COMM_WORLD);
 			for (int j = 0; j <= n; j++)
 				tmp[j] = a[row * (n + 1) + j];
@@ -71,7 +71,7 @@ void gauss() {
 		{
 			MPI_Bcast(tmp, n + 1, MPI_DOUBLE, i % proc_num, MPI_COMM_WORLD);
 		}
-		// Вычитаем принятую строку из уравнений, хранящихся в текущем процессе
+		// Р’С‹С‡РёС‚Р°РµРј РїСЂРёРЅСЏС‚СѓСЋ СЃС‚СЂРѕРєСѓ РёР· СѓСЂР°РІРЅРµРЅРёР№, С…СЂР°РЅСЏС‰РёС…СЃСЏ РІ С‚РµРєСѓС‰РµРј РїСЂРѕС†РµСЃСЃРµ
 		for (int j = row; j < nrows; j++)
 		{
 			double scaling = a[j * (n + 1) + i] / tmp[i];
@@ -79,7 +79,7 @@ void gauss() {
 				a[j * (n + 1) + k] -= scaling * tmp[k];
 		}
 	}
-	// Инициализация неизвестных
+	// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РЅРµРёР·РІРµСЃС‚РЅС‹С…
 	row = 0;
 	for (int i = 0; i < n; i++)
 	{
@@ -90,7 +90,7 @@ void gauss() {
 			row++;
 		}
 	}
-	// Обратный ход 
+	// РћР±СЂР°С‚РЅС‹Р№ С…РѕРґ 
 	row = nrows - 1;
 	for (int i = n - 1; i > 0; i--)
 	{
@@ -99,7 +99,7 @@ void gauss() {
 			if (i == rows[row])
 			{
 				x[i] /= a[row * (n + 1) + i];
-				// Передаем найденное x[i]
+				// РџРµСЂРµРґР°РµРј РЅР°Р№РґРµРЅРЅРѕРµ x[i]
 				MPI_Bcast(&x[i], 1, MPI_DOUBLE, proc_rank, MPI_COMM_WORLD);
 				row--;
 			}
@@ -109,12 +109,12 @@ void gauss() {
 		else
 			MPI_Bcast(&x[i], 1, MPI_DOUBLE, i % proc_num, MPI_COMM_WORLD);
 		for (int j = 0; j <= row; j++)
-			// Корректировка локальных x[i]
+			// РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° Р»РѕРєР°Р»СЊРЅС‹С… x[i]
 			x[rows[j]] -= a[j * (n + 1) + i] * x[i];
 	}
 	if (proc_rank == 0)
 		x[0] /= a[row * (n + 1)];
-	// Корректировка x[0]
+	// РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° x[0]
 	MPI_Bcast(x, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
 	free(tmp);
