@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
 
 	vote = (rand() % proc_num);
 
-	//  председатель 
+	//  РїСЂРµРґСЃРµРґР°С‚РµР»СЊ 
 	if (proc_rank == 0)
 	{
 		int votes;
@@ -42,12 +42,12 @@ int main(int argc, char* argv[])
 		arr[vote]++;
 		end = MPI_Wtime();
 		std::cout << "time to sum = " << end - start << "s\n";
-		// вывод распределения голосов
+		// РІС‹РІРѕРґ СЂР°СЃРїСЂРµРґРµР»РµРЅРёСЏ РіРѕР»РѕСЃРѕРІ
 		for (int g = 0; g < proc_num; g++) {
 			std::cout << "arr[" << g << "] = " << arr[g] << std::endl;
 		}
 		std::cout << "Winner is: " << std::distance(arr, std::max_element(arr, arr + proc_num)) << std::endl;
-	}// магистры
+	}// РјР°РіРёСЃС‚СЂС‹
 	else
 	{
 		for (int i = 1; i < proc_num; ++i)
