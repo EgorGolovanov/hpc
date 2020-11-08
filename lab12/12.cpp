@@ -1,4 +1,4 @@
-// 12.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
+// lab1011.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
 //
 #include <iostream>
 #include <math.h>
@@ -58,7 +58,7 @@ void gauss() {
 	int row = 0;
 	for (int i = 0; i < n - 1; i++)
 	{
-		// Исключаем x_i
+		// Исключаем x[i]
 		if (i == rows[row])
 		{
 			// Рассылаем строку i, находящуюся в памяти текущего процесса
@@ -99,7 +99,7 @@ void gauss() {
 			if (i == rows[row])
 			{
 				x[i] /= a[row * (n + 1) + i];
-				// Передаем найденное x_i
+				// Передаем найденное x[i]
 				MPI_Bcast(&x[i], 1, MPI_DOUBLE, proc_rank, MPI_COMM_WORLD);
 				row--;
 			}
@@ -109,14 +109,14 @@ void gauss() {
 		else
 			MPI_Bcast(&x[i], 1, MPI_DOUBLE, i % proc_num, MPI_COMM_WORLD);
 		for (int j = 0; j <= row; j++)
-			// Корректировка локальных x_i
+			// Корректировка локальных x[i]
 			x[rows[j]] -= a[j * (n + 1) + i] * x[i];
 	}
 	if (proc_rank == 0)
 		x[0] /= a[row * (n + 1)];
-	// Корректировка x_0
+	// Корректировка x[0]
 	MPI_Bcast(x, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-	// Все процессы содержат корректный вектор x[n] решений
+
 	free(tmp);
 	free(rows);
 	free(a);
